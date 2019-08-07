@@ -1,16 +1,31 @@
-import React from "react"; 
+import React, { useState } from "react"; 
 import axios from 'axios';
 import * as Yup from 'yup';
 import { Form, Field, withFormik } from "formik"; 
 
- const UserForm = () => {
+ const UserForm = ({ errors, touched, values}) => {
+
+    const [users, setUsers] = useState([]);
+
+    
  return(
     <div className='user-form'> 
     <h1>User</h1>
     <Form>
     <Field type="text" name="name" placeholder="Name" />
+    {touched.name && errors.name && (
+        <p className="error">{errors.name}</p>
+    )}
+
     <Field type="email" name="email" placeholder="Email" />
+    {touched.email && errors.email && (
+          <p className="error">{errors.email}</p>
+        )}
+
     <Field type="password" name="password" placeholder="Password" />
+    {touched.password && errors.password && (
+          <p className="error">{errors.password}</p>
+        )}
 
     <label className="checkbox-container">
           Accept Terms of Service
@@ -31,6 +46,7 @@ import { Form, Field, withFormik } from "formik";
  )   
 }
 
+
 const FormikUserForm = withFormik({
     mapPropsToValues({ name, email, password, tos}) {
         return {
@@ -42,11 +58,11 @@ const FormikUserForm = withFormik({
     },
 
     validationSchema: Yup.object().shape({
-    name: Yup.string().required(),
-    email: Yup.string().required(),
-    password: Yup.string().required(),
-    // tos:   
+    name: Yup.string().required('YOU MESSED UP '),
+    email: Yup.string().required('YOU MESSED UP'),
+    password: Yup.string().required('YOU MESSED UP SON')   
     }),    
+
 
 handleSubmit(values) {
     axios
