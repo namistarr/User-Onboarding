@@ -1,11 +1,18 @@
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react"; 
 import axios from 'axios';
 import * as Yup from 'yup';
 import { Form, Field, withFormik } from "formik"; 
 
- const UserForm = ({ errors, touched, values}) => {
+ const UserForm = ({ errors, touched, values, status }) => {
 
     const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        if (status) {  
+            console.log(status);           
+            setUsers([...users, status]);
+        }        
+    }, [status]);
 
     
  return(
@@ -37,11 +44,18 @@ import { Form, Field, withFormik } from "formik";
           <span className="checkmark" />
         </label>
 
-
-
     <button type='submit'>Submit</button>
      
     </Form> 
+        {users.map(user => (
+            <div>
+                <p>
+                { user.name }
+                { user.email }
+                </p>
+            </div>
+        ))}
+
     </div>
  )   
 }
@@ -53,24 +67,36 @@ const FormikUserForm = withFormik({
             name: name || '',
             email: email || '',
             password: password || '',
-            tos: tos || false
+            tos: tos || true
         };
     },
 
     validationSchema: Yup.object().shape({
     name: Yup.string().required('YOU MESSED UP '),
     email: Yup.string().required('YOU MESSED UP'),
-    password: Yup.string().required('YOU MESSED UP SON')   
+    password: Yup.string().required('YOU MESSED UP SON') 
     }),    
 
 
-handleSubmit(values) {
-    axios
-    .post(" https://reqres.in/api/users", values )
-    .then(res => console.log(res))
-    .catch(error => console.log("ERROR", error))
-}    
 
+handleSubmit(values, { resetForm ,setErrors, setStatus }) {
+    if (values.email === 'cats@fish.com') {
+        setErrors({ email: 'That email is taken, SON'})
+    } else {
+        axios
+        .post(" https://reqres.in/api/users", values)
+        .then(res => {
+            console.log(res);
+            setStatus(res.data); 
+            resetForm(); 
+        })    
+        .catch(error => {
+            console.log("ERROR", error);
+        });
+    }   
+}
 })(UserForm);
+
+
 
 export default FormikUserForm;
